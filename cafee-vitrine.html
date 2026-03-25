@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafee Agency | L'Art du Code, l'Élégance du Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- AOS pour les animations au scroll -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: #fcfcfc;
+            color: #0a0a0a;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow-x: hidden;
+            cursor: auto;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .text-outline {
+            -webkit-text-stroke: 1px #0a0a0a;
+            color: transparent;
+        }
+        .grain-bg {
+            position: fixed;
+            inset: 0;
+            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 50;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+            mix-blend-mode: multiply;
+        }
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            background-color: #0a0a0a;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.15s ease-out, opacity 0.3s ease;
+            display: none;
+            left: 0;
+            top: 0;
+        }
+        @media (pointer: fine) and (min-width: 768px) {
+            body.custom-cursor-enabled { cursor: none; }
+            body.custom-cursor-enabled .custom-cursor { display: block; }
+        }
+        
+        section { position: relative; z-index: 10; }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: currentColor;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        /* Animation de flottement pour les piliers */
+        .pillar-card {
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .pillar-card:hover {
+            transform: translateY(-10px);
+            background-color: #ffffff;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+            border-top-color: #0a0a0a;
+        }
+
+        /* Effet de révélation pour les images/contenus */
+        .reveal-box {
+            position: relative;
+            overflow: hidden;
+        }
+        .reveal-box::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0a0a0a;
+            transform: translateX(-101%);
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .reveal-box.aos-animate::after {
+            transform: translateX(101%);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    <div class="grain-bg"></div>
+    <div class="custom-cursor" id="cursor"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-[100] p-6 md:p-10 flex justify-between items-center mix-blend-difference text-white">
+        <div class="text-xl font-black tracking-tighter italic uppercase">CAFEE<span class="text-neutral-500">.</span></div>
+        <div class="flex gap-8 text-[8px] font-bold uppercase tracking-[0.4em]">
+            <a href="#vision" class="nav-link relative">Vision</a>
+            <a href="#piliers" class="nav-link relative">Systèmes</a>
+            <a href="#contact" class="nav-link relative underline underline-offset-4">Briefing</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col justify-center px-6 md:px-24">
+        <div class="max-w-screen-2xl mx-auto w-full">
+            <div data-aos="fade-up" data-aos-duration="1500">
+                <h1 class="text-[14vw] md:text-[11vw] font-black leading-[0.85] tracking-tighter uppercase italic">
+                    L'Art du <span class="text-outline">Code</span> <br />
+                    L'Élégance du <span class="text-outline">Design</span>
+                </h1>
+            </div>
+            
+            <div class="mt-20 grid grid-cols-1 md:grid-cols-12 gap-10 border-t border-black/10 pt-12" data-aos="fade-up" data-aos-delay="500">
+                <div class="md:col-span-5">
+                    <p class="text-[9px] font-black uppercase tracking-[0.5em] mb-4 text-neutral-400">Positionnement</p>
+                    <p class="text-sm font-medium leading-relaxed max-w-md">
+                        Développement de logiciels personnalisés et architectures numériques de haute précision pour marques exigeantes.
+                    </p>
+                </div>
+                <div class="md:col-start-8 md:col-span-5 text-right">
+                    <p class="text-[9px] font-black uppercase tracking-[0.5em] mb-4 text-neutral-400">Localisation</p>
+                    <p class="text-sm font-medium leading-relaxed italic">
+                        Île-de-France, France. <br /> Architectes de l'Information.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manifeste Section -->
+    <section id="vision" class="py-40 md:py-64 bg-[#0a0a0a] text-white px-6 md:px-24 overflow-hidden">
+        <div class="max-w-screen-2xl mx-auto">
+            <div class="flex flex-col gap-24">
+                <div class="space-y-6" data-aos="fade-right">
+                    <p class="text-[10px] font-black uppercase tracking-[0.6em] text-neutral-500 text-center md:text-left">Manifeste</p>
+                    <h2 class="text-4xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9] max-w-5xl italic">
+                        Le code doit être pur, équilibré et donner l'énergie nécessaire pour <span class="text-neutral-500">propulser vos ambitions mondiales.</span>
+                    </h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-20 items-start">
+                    <div class="text-neutral-400 font-light text-xl leading-relaxed space-y-8 max-w-xl" data-aos="fade-up" data-aos-delay="200">
+                        <p>
+                            Basés en <span class="text-white italic font-bold tracking-tighter">Île-de-France</span>, nous avons choisi le silence, la clarté et l'excellence.
+                        </p>
+                        <p>
+                            Comme un café parfaitement extrait, nous éliminons le superflu pour ne garder que l'essentiel, magnifié par la technologie. Nous bâtissons des écosystèmes scalables.
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-12 border-l border-neutral-800 pl-12" data-aos="fade-left" data-aos-delay="400">
+                        <div>
+                            <h4 class="text-xs font-black uppercase tracking-widest mb-2 text-white">Architecture</h4>
+                            <p class="text-sm text-neutral-500">Le minimalisme comme standard de luxe et d'efficacité utilisateur.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-black uppercase tracking-widest mb-2 text-white">Proximité</h4>
+                            <p class="text-sm text-neutral-500">Un accompagnement stratégique direct au cœur du hub technologique français.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Piliers Section -->
+    <section id="piliers" class="py-40 px-6 md:px-24 max-w-screen-2xl mx-auto">
+        <div class="flex justify-between items-end mb-32" data-aos="fade-up">
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-4">Ingénierie & Design</p>
+                <h2 class="text-6xl md:text-9xl font-black uppercase tracking-tighter">Piliers<span class="text-neutral-200">.</span></h2>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-24">
+            <!-- SaaS -->
+            <div class="pillar-card group border-t border-black/5 pt-12 px-4 pb-12" data-aos="fade-up">
+                <div class="flex gap-8 items-start mb-8">
+                    <span class="mono text-[10px] font-bold opacity-20">01</span>
+                    <h3 class="text-3xl md:text-5xl font-black uppercase tracking-tighter group-hover:italic transition-all duration-500">
+                        SaaS & Web High-End
+                    </h3>
+                </div>
+                <p class="text-neutral-500 leading-relaxed mb-8 max-w-md">
+                    Infrastructures robustes pour la performance absolue. Le web comme moteur de croissance métier.
+                </p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[8px] font-black uppercase tracking-widest bg-neutral-100 px-3 py-1 rounded-full group-hover:bg-black group-hover:text-white transition-colors">Next.js</span>
+                    <span class="text-[8px] font-black uppercase tracking-widest bg-neutral-100 px-3 py-1 rounded-full group-hover:bg-black group-hover:text-white transition-colors">Cloud Architecture</span>
+                </div>
+            </div>
+            <!-- Mobile -->
+            <div class="pillar-card group border-t border-black/5 pt-12 px-4 pb-12" data-aos="fade-up" data-aos-delay="100">
+                <div class="flex gap-8 items-start mb-8">
+                    <span class="mono text-[10px] font-bold opacity-20">02</span>
+                    <h3 class="text-3xl md:text-5xl font-black uppercase tracking-tighter group-hover:italic transition-all duration-500">
+                        Solutions Mobiles
+                    </h3>
+                </div>
+                <p class="text-neutral-500 leading-relaxed mb-8 max-w-md">
+                    Expériences natives pensées pour l'intuition et l'engagement. L'excellence au creux de la main.
+                </p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[8px] font-black uppercase tracking-widest bg-neutral-100 px-3 py-1 rounded-full group-hover:bg-black group-hover:text-white transition-colors">React Native</span>
+                    <span class="text-[8px] font-black uppercase tracking-widest bg-neutral-100 px-3 py-1 rounded-full group-hover:bg-black group-hover:text-white transition-colors">UI/UX Focus</span>
+                </div>
+            </div>
+            <!-- IA -->
+            <div class="pillar-card group border-t border-black/5 pt-12 px-4 pb-12" data-aos="fade-up">
+                <div class="flex gap-8 items-start mb-8">
+                    <span class="mono text-[10px] font-bold opacity-20">03</span>
+                    <h3 class="text-3xl md:text-5xl font-black uppercase tracking-tighter group-hover:italic transition-all duration-500">
+                        Intelligence Artificielle
+                    </h3>
+                </div>
+                <p class="text-neutral-500 leading-relaxed mb-8 max-w-md">
+                    IA intégrée pour automatiser l'humain, pas pour le remplacer. Algorithmes au service de la productivité.
+                </p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[8px] font-black uppercase tracking-widest bg-neutral-100 px-3 py-1 rounded-full group-hover:bg-black group-hover:text-white transition-colors">Automation</span>
+                    <span class="text-[8px] font-black uppercase tracking-widest bg-neutral-100 px-3 py-1 rounded-full group-hover:bg-black group-hover:text-white transition-colors">LLM Tools</span>
+                </div>
+            </div>
+            <!-- Design -->
+            <div class="pillar-card group border-t border-black/5 pt-12 px-4 pb-12" data-aos="fade-up" data-aos-delay="100">
+                <div class="flex gap-8 items-start mb-8">
+                    <span class="mono text-[10px] font-bold opacity-20">04</span>
+                    <h3 class="text-3xl md:text-5xl font-black uppercase tracking-tighter group-hover:italic transition-all duration-500">
+                        Design UI/UX Élite
+                    </h3>
+                </div>
+                <p class="text-neutral-500 leading-relaxed mb-8 max-w-md">
+                    Le minimalisme comme standard de luxe. Chaque pixel a une fonction précise.
+                </p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[8px] font-black uppercase tracking-widest bg-neutral-100 px-3 py-1 rounded-full group-hover:bg-black group-hover:text-white transition-colors">Luxury Standard</span>
+                    <span class="text-[8px] font-black uppercase tracking-widest bg-neutral-100 px-3 py-1 rounded-full group-hover:bg-black group-hover:text-white transition-colors">Figma Art</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-60 px-6 bg-white overflow-hidden">
+        <div class="max-w-screen-2xl mx-auto flex flex-col items-center text-center">
+            <div class="mb-20" data-aos="zoom-out" data-aos-duration="1200">
+                <h2 class="text-[12vw] font-black uppercase tracking-tighter leading-none italic">
+                    Parlons-en <br /> <span class="text-outline">autour d'un café.</span>
+                </h2>
+            </div>
+            
+            <div class="flex flex-col items-center gap-12" data-aos="fade-up">
+                <p class="text-lg font-medium text-neutral-400 max-w-xl">
+                    Une vision qui mérite l'excellence ? Nos architectes basés en Île-de-France sont prêts à concevoir votre prochain écosystème numérique.
+                </p>
+                
+                <div class="flex flex-col md:flex-row items-center gap-8 mt-12">
+                    <a href="mailto:contact@cafe.agency" class="group relative bg-[#0a0a0a] text-white px-16 py-8 text-[10px] font-black uppercase tracking-[0.5em] overflow-hidden transform transition-transform hover:scale-105 active:scale-95">
+                        <span class="relative z-10 italic">Initialiser le Projet</span>
+                        <div class="absolute inset-0 bg-neutral-700 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                    </a>
+                    <div class="text-left border-l border-black/10 pl-8">
+                        <p class="text-[8px] font-black uppercase tracking-widest text-neutral-300 mb-1">Hub Francilien</p>
+                        <p class="text-[10px] font-bold uppercase">Île-de-France, France</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="p-10 border-t border-black/5 bg-white">
+        <div class="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-[8px] font-black uppercase tracking-[0.4em] opacity-30">
+            <div>© CAFEE AGENCY 2024 — ARCHITECTURE LOGICIELLE</div>
+            <div class="italic">ÎLE-DE-FRANCE, FRANCE</div>
+            <div class="text-right">PURE CODE. HIGH EXTRACTION.</div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialisation AOS
+        AOS.init({
+            duration: 1000,
+            once: false,
+            mirror: true,
+            easing: 'ease-out-cubic'
+        });
+
+        // Custom Cursor Logic
+        const cursor = document.getElementById('cursor');
+        let cursorX = 0, cursorY = 0;
+        let targetX = 0, targetY = 0;
+        const cursorEnabled = window.matchMedia('(pointer: fine) and (min-width: 768px)').matches;
+
+        if (cursor && cursorEnabled) {
+            document.body.classList.add('custom-cursor-enabled');
+
+            document.addEventListener('mousemove', (e) => {
+                targetX = e.clientX;
+                targetY = e.clientY;
+            });
+
+            function updateCursor() {
+                // Interpolation pour plus de fluidité
+                cursorX += (targetX - cursorX) * 0.2;
+                cursorY += (targetY - cursorY) * 0.2;
+                
+                cursor.style.left = `${cursorX - 10}px`;
+                cursor.style.top = `${cursorY - 10}px`;
+                requestAnimationFrame(updateCursor);
+            }
+            updateCursor();
+
+            // Interaction curseur sur les liens
+            const interactiveElements = document.querySelectorAll('a, button, .pillar-card');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'scale(3)';
+                    cursor.style.opacity = '0.5';
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'scale(1)';
+                    cursor.style.opacity = '1';
+                });
+            });
+        }
+
+        // Three.js Scene Setup
+        let scene, camera, renderer, grains = [];
+
+        function initThree() {
+            const container = document.getElementById('canvas-container');
+            if (!container) return;
+            
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 12;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            const spotLight = new THREE.SpotLight(0xffffff, 2);
+            spotLight.position.set(10, 10, 10);
+            scene.add(spotLight);
+
+            const geometry = new THREE.IcosahedronGeometry(1, 0); 
+            const material = new THREE.MeshStandardMaterial({ 
+                color: 0x0a0a0a, 
+                roughness: 0.1, 
+                metalness: 0.8 
+            });
+
+            for (let i = 0; i < 35; i++) {
+                const mesh = new THREE.Mesh(geometry, material);
+                const scale = 0.05 + Math.random() * 0.25;
+                mesh.scale.set(scale, scale * 1.3, scale);
+                mesh.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 15, (Math.random() - 0.5) * 10);
+                mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+                mesh.userData = { speed: 0.0008 + Math.random() * 0.002, offset: Math.random() * 10 };
+                scene.add(mesh);
+                grains.push(mesh);
+            }
+
+            animate();
+        }
+
+        function animate() {
+            const time = Date.now() * 0.0005;
+            grains.forEach(g => {
+                g.rotation.x += g.userData.speed;
+                g.rotation.y += g.userData.speed;
+                g.position.y += Math.sin(time + g.userData.offset) * 0.003;
+            });
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+
+        window.onload = initThree;
+    </script>
+</body>
+</html>
